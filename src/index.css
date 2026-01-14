@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom Animation for reversing spin */
+@keyframes spin-reverse {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+.animate-spin-reverse {
+  animation: spin-reverse 1.5s linear infinite;
+}
+
+@keyframes progress-indeterminate {
+  0% { transform: translateX(-100%); width: 20%; }
+  50% { transform: translateX(50%); width: 50%; }
+  100% { transform: translateX(200%); width: 20%; }
+}
+
+.animate-progress-indeterminate {
+  animation: progress-indeterminate 1.5s infinite linear;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* Custom Scrollbar */
+.editor-cloud::-webkit-scrollbar { width: 8px; }
+.editor-cloud::-webkit-scrollbar-track { background: #f1f5f9; }
+.editor-cloud::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+.editor-cloud::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* Content Panel Scrollbar */
+.contentPanel::-webkit-scrollbar { width: 8px; }
+.contentPanel::-webkit-scrollbar-track { background: transparent; }
+.contentPanel::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+.contentPanel::-webkit-scrollbar-thumb:hover { background: #94a3b8; }

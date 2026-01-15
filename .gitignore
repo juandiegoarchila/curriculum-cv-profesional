@@ -3,6 +3,9 @@ src/firebaseConfig.js
 .env
 .env.local
 .env.production
+**/curriculum-cv-profesional*.json
+**/*serviceAccountKey*.json
+firebase-adminsdk*.json
 
 # Logs
 logs

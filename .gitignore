@@ -1,3 +1,9 @@
+# 🔒 SEGURIDAD - Archivos con credenciales sensibles
+src/firebaseConfig.js
+.env
+.env.local
+.env.production
+
 # Logs
 logs
 *.log

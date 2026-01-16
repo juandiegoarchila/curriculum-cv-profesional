@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { ExternalLink, Github, ArrowRight, Star, TrendingUp, Users, Zap, Layout, Globe, BarChart3, ShoppingCart } from 'lucide-react';
 import { useData } from '../context/DataContext';
+import { normalizeUrl } from '../utils/urlHelpers';
 
 const iconMap = {
   TrendingUp, Users, Zap, Layout, Globe, BarChart3, ShoppingCart, Star
@@ -74,7 +75,7 @@ const Projects = ({ customData, customLabels, customSectionVisibility }) => {
 
                 <div className="flex gap-4">
                     <a 
-                      href={project.link} 
+                      href={normalizeUrl(project.link)} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="px-6 py-3 bg-slate-900 text-white rounded-lg font-bold hover:bg-slate-800 transition-colors flex items-center gap-2"

@@ -42,20 +42,6 @@ const Home = () => {
       </main>
       <Footer />
 
-      {/* Platform Attribution & Feedback */}
-      <div className="bg-slate-950 py-6 text-center border-t border-slate-900 border-opacity-50">
-          <p className="text-[10px] text-slate-500 mb-3 font-medium">
-            Creado con <a href="/" className="text-slate-400 hover:text-blue-400 transition-colors font-bold tracking-wide">CV Profesional</a>
-          </p>
-          <button 
-              onClick={() => setIsFeedbackOpen(true)}
-              className="inline-flex items-center gap-2 text-[10px] text-slate-500 hover:text-white transition-all bg-slate-900 hover:bg-slate-800 px-3 py-1.5 rounded-full border border-slate-800"
-          >
-              <MessageSquare size={12} className="text-yellow-500" />
-              <span>Reportar error o sugerencia</span>
-          </button>
-      </div>
-
       <CVPreview />
 
        {/* Feedback Modal */}

@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Upload, FileText, Loader2, Sparkles, MoreVertical, Trash2, Edit2, LayoutDashboard, Plus, ArrowRight } from 'lucide-react';
+import { Upload, FileText, Loader2, Sparkles, MoreVertical, Trash2, Edit2, LayoutDashboard, Plus, ArrowRight, AlertTriangle, X } from 'lucide-react';
 import { extractTextFromPDF, parseCVFromText } from '../utils/cvParser';
 import { useData } from '../context/DataContext';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   profile as defaultProfileData, 
   experience as defaultExperience, 
@@ -28,6 +29,9 @@ const Onboarding = () => {
     
     const [isUploading, setIsUploading] = useState(false);
     const [showMenu, setShowMenu] = useState(false);
+    const [showWarningModal, setShowWarningModal] = useState(false);
+    const [warningAction, setWarningAction] = useState(null);
+    const [pendingFile, setPendingFile] = useState(null);
     const [renameMode, setRenameMode] = useState(false);
     const [createMode, setCreateMode] = useState(false); // Mode to show onboarding options from dashboard
     const [newName, setNewName] = useState("");
@@ -46,42 +50,82 @@ const Onboarding = () => {
     }, []);
 
     const handleStartFromScratch = async () => {
+        // Si ya tiene un CV guardado, mostrar advertencia
+        if (isSaved) {
+            setWarningAction('template');
+            setShowWarningModal(true);
+            return;
+        }
+
+        // Continuar con la creación directa
+        executeStartFromScratch();
+    };
+
+    const executeStartFromScratch = async () => {
         setIsUploading(true);
-        // Cargar directamente la plantilla por defecto
+        setShowWarningModal(false);
+        
+        // Cargar directamente la plantilla por defecto con TODOS los campos
         try {
+            // IMPORTANTE: usar { merge: false } para REEMPLAZAR COMPLETAMENTE el documento
+            // Esto elimina todos los campos anteriores (foto, contactos, etc.)
             await saveData({
                 profile: defaultProfileData, 
                 experience: defaultExperience, 
                 projects: defaultProjects, 
                 skills: defaultSkills, 
                 education: defaultEducation, 
-                continuousEducation: defaultContinuousEducation,
+                continuousEducation: defaultContinuousEducation || [],
                 header: defaultHeader, 
                 footer: defaultFooter, 
-                labels: defaultLabels
-            });
+                labels: defaultLabels,
+                theme: { template: 'new-york', font: 'Arimo', color: '#0f172a' },
+                sectionVisibility: {
+                    profile: true,
+                    experience: true,
+                    projects: true,
+                    skills: true,
+                    education: true,
+                    contact: true
+                }
+            }, { merge: false });
             await new Promise(resolve => setTimeout(resolve, 800)); // UX delay
             navigate('/admin');
         } catch (error) {
-            console.warn("Error al inicializar plantilla:", error);
-            navigate('/admin');
+            console.error("Error al inicializar plantilla:", error);
+            alert("Error al cargar la plantilla. Por favor intenta de nuevo.");
+            setIsUploading(false);
         }
     };
 
     const handleUploadCV = async (e) => {
         const file = e.target.files[0];
         if(file){
-            setIsUploading(true);
-            try {
-                const text = await extractTextFromPDF(file);
-                const parsedData = parseCVFromText(text);
-                await saveData(parsedData);
-                navigate('/admin', { state: { analyzing: true } });
-            } catch (error) {
-                console.error("Error procesando CV:", error);
-                alert("Hubo un error al procesar el archivo.");
-                setIsUploading(false);
+            // Si ya tiene un CV guardado, mostrar advertencia
+            if (isSaved) {
+                setPendingFile(file);
+                setWarningAction('upload');
+                setShowWarningModal(true);
+                e.target.value = ''; // Limpiar input file
+                return;
             }
+
+            // Continuar con la carga directa
+            executeUploadCV(file);
+        }
+    }
+
+    const executeUploadCV = async (file) => {
+        setIsUploading(true);
+        try {
+            const text = await extractTextFromPDF(file);
+            const parsedData = parseCVFromText(text);
+            await saveData(parsedData);
+            navigate('/admin', { state: { analyzing: true } });
+        } catch (error) {
+            console.error("Error procesando CV:", error);
+            alert("Hubo un error al procesar el archivo.");
+            setIsUploading(false);
         }
     }
 
@@ -239,14 +283,18 @@ const Onboarding = () => {
 
                         {/* Tarjeta de Crear Nuevo */}
                         <div 
-                            className="bg-white rounded-xl border-2 border-dashed border-slate-200 shadow-sm hover:border-blue-400 hover:bg-blue-50/30 transition-all flex flex-col items-center justify-center p-4 md:p-8 cursor-pointer group min-h-[180px] md:min-h-[220px]"
+                            className="bg-white rounded-xl border-2 border-dashed border-slate-200 shadow-sm hover:border-blue-400 hover:bg-blue-50/30 transition-all flex flex-col items-center justify-center p-4 md:p-8 cursor-pointer group min-h-[180px] md:min-h-[220px] relative"
                             onClick={() => setCreateMode(true)}
                         >
                             <div className="w-12 h-12 md:w-16 md:h-16 bg-slate-50 rounded-full flex items-center justify-center text-slate-400 group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors mb-3 md:mb-4">
                                 <Plus size={24} className="md:w-8 md:h-8" />
                             </div>
-                            <h3 className="text-sm md:text-lg font-bold text-slate-700 group-hover:text-blue-700 mb-1">Crear Nuevo</h3>
-                            <p className="text-[10px] md:text-xs text-slate-400 text-center max-w-[150px] md:max-w-[200px]">Empieza desde cero o sube un nuevo PDF</p>
+                            <h3 className="text-sm md:text-lg font-bold text-slate-700 group-hover:text-blue-700 mb-1">Reemplazar CV</h3>
+                            <p className="text-[10px] md:text-xs text-slate-400 text-center max-w-[150px] md:max-w-[200px] mb-2">Carga plantilla nueva o sube un PDF guardado para recuperar datos</p>
+                            <div className="absolute bottom-3 left-3 right-3 bg-amber-50 border border-amber-200 rounded-lg px-2 py-1 flex items-center justify-center gap-1">
+                                <AlertTriangle className="w-3 h-3 text-amber-600 flex-shrink-0" />
+                                <p className="text-[9px] md:text-[10px] font-medium text-amber-700">Reemplazará tus datos actuales</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -297,6 +345,95 @@ const Onboarding = () => {
     // --- RENDERIZADO: ONBOARDING (NUEVO USUARIO) ---
     return (
         <div className="fixed inset-0 min-h-[-webkit-fill-available] w-full bg-slate-50 flex flex-col items-center justify-center font-sans overflow-hidden py-4">
+           {/* Warning Modal */}
+           <AnimatePresence>
+               {showWarningModal && (
+                   <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+                       <motion.div 
+                           initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                           animate={{ opacity: 1, scale: 1, y: 0 }}
+                           exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                           className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-200"
+                       >
+                           {/* Header */}
+                           <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-6 border-b border-amber-100">
+                               <div className="flex items-start gap-4">
+                                   <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                       <AlertTriangle className="w-6 h-6 text-amber-600" />
+                                   </div>
+                                   <div className="flex-1">
+                                       <h3 className="text-xl font-bold text-slate-900 mb-1">
+                                           ⚠️ Ya tienes un CV guardado
+                                       </h3>
+                                       <p className="text-sm text-slate-600">
+                                           Esta acción sobrescribirá tu CV actual
+                                       </p>
+                                   </div>
+                                   <button 
+                                       onClick={() => setShowWarningModal(false)}
+                                       className="text-slate-400 hover:text-slate-600 transition-colors"
+                                   >
+                                       <X className="w-5 h-5" />
+                                   </button>
+                               </div>
+                           </div>
+
+                           {/* Body */}
+                           <div className="p-6 space-y-4">
+                               <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
+                                   <p className="text-sm text-slate-700 leading-relaxed">
+                                       {warningAction === 'template' ? (
+                                           <>Si usas la plantilla de ejemplo, <strong>se reemplazarán todos tus datos actuales</strong> con información de demostración.</>
+                                       ) : (
+                                           <>Si subes un nuevo PDF, <strong>se reemplazarán todos tus datos actuales</strong> con la información extraída del archivo.</>
+                                       )}
+                                   </p>
+                               </div>
+
+                               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
+                                   <div className="text-2xl flex-shrink-0">💡</div>
+                                   <div>
+                                       <p className="text-sm font-semibold text-blue-900 mb-1">¿Cómo recuperar tus datos?</p>
+                                       <p className="text-xs text-blue-700">
+                                           Si descargaste tu CV antes, puedes <strong>subirlo de nuevo</strong> para recuperar toda tu información. De lo contrario, ve a tu página web y descarga el PDF usando <strong>"Descargar CV"</strong>.
+                                       </p>
+                                   </div>
+                               </div>
+                           </div>
+
+                           {/* Footer */}
+                           <div className="bg-slate-50 px-6 py-4 flex gap-3">
+                               <button 
+                                   onClick={() => {
+                                       setShowWarningModal(false);
+                                       setPendingFile(null);
+                                       setWarningAction(null);
+                                   }}
+                                   className="flex-1 px-4 py-2.5 bg-white border-2 border-slate-300 text-slate-700 font-bold rounded-lg hover:bg-slate-50 transition-colors"
+                               >
+                                   Cancelar
+                               </button>
+                               <button 
+                                   onClick={() => {
+                                       setShowWarningModal(false);
+                                       if (warningAction === 'template') {
+                                           executeStartFromScratch();
+                                       } else if (warningAction === 'upload' && pendingFile) {
+                                           executeUploadCV(pendingFile);
+                                           setPendingFile(null);
+                                       }
+                                       setWarningAction(null);
+                                   }}
+                                   className="flex-1 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold rounded-lg hover:from-amber-600 hover:to-orange-600 transition-colors shadow-lg shadow-amber-500/30"
+                               >
+                                   Sí, Sobrescribir
+                               </button>
+                           </div>
+                       </motion.div>
+                   </div>
+               )}
+           </AnimatePresence>
+
            {/* Background */}
            <div className='absolute inset-0 pointer-events-none opacity-30'>
                 <div className='absolute top-0 right-0 w-64 h-64 bg-blue-200 rounded-full blur-3xl mix-blend-multiply opacity-50'></div>
@@ -342,6 +479,12 @@ const Onboarding = () => {
                         El algoritmo extraerá tus datos automáticamente para ahorrarte tiempo.    
                      </p>
                      
+                     {isSaved && (
+                        <p className="text-[10px] md:text-xs text-amber-600 mb-2 font-medium">
+                            ⚠️ Sobrescribirá tu CV actual
+                        </p>
+                     )}
+                     
                      <label className={`w-full max-w-[200px] ${isUploading ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
                         <div className="py-2 md:py-3 bg-blue-600 text-white font-bold rounded-lg text-sm md:text-base shadow-md active:scale-95 transition-transform truncate px-2 hover:bg-blue-700">
                             {isUploading ? "Procesando..." : "Subir Archivo"}
@@ -359,6 +502,12 @@ const Onboarding = () => {
                  <p className="text-slate-400 text-[10px] md:text-sm mb-3 md:mb-6 line-clamp-1 md:line-clamp-none max-w-xs">
                     Inicia con una plantilla completa de ejemplo y adáptala a tu info.
                  </p>
+                 
+                 {isSaved && (
+                    <p className="text-[10px] md:text-xs text-amber-600 mb-2 font-medium">
+                        ⚠️ Sobrescribirá tu CV actual
+                    </p>
+                 )}
                  
                  <button type="button" className="w-full max-w-[200px] py-2 md:py-3 bg-slate-100 border border-slate-200 text-slate-600 font-bold rounded-lg text-sm md:text-base active:scale-95 transition-transform truncate px-2 group-hover:border-slate-300 group-hover:text-slate-800" disabled={isUploading}>
                     {isUploading ? "Creando..." : "Usar Plantilla"}

@@ -73,9 +73,9 @@ function App() {
           {/* Landing Page Principal */}
           <Route path="/" element={<LandingPage />} />
           
-          {/* Demo y Ejemplo (CV de Juan Diego por defecto) */}
+          {/* Demo y Ejemplo (CV de Juan Diego por defecto - DATOS ESTÁTICOS) */}
           <Route path="/demo" element={
-            <DataProvider>
+            <DataProvider demoMode={true}>
                 <Home />
             </DataProvider>
           } />

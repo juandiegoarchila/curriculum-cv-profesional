@@ -6,7 +6,7 @@ import { getStorage } from "firebase/storage";
 // Configuración de Firebase - Reemplaza con tus propias claves
 // Puedes obtenerlas en la consola de Firebase: Project Settings > General > SDK Setup
 const firebaseConfig = {
-  apiKey: "AIzaSyBb4wH3rwhlQ9_HY1J0GtJr1rgD8kL5x3Q",
+  apiKey: "AIzaSyB7efIs2zUar1ScZHNJl8rO6D6yrXI7Yk0",
   authDomain: "curriculum-cv-profesional.firebaseapp.com",
   projectId: "curriculum-cv-profesional",
   storageBucket: "curriculum-cv-profesional.firebasestorage.app",

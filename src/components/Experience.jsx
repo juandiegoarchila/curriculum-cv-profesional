@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, MapPin, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
 import { useData } from '../context/DataContext';
+import { normalizeUrl } from '../utils/urlHelpers';
 
 const Experience = ({ customData, customLabels, customSectionVisibility }) => {
   const { experience: contextExperience, sectionVisibility, labels } = useData();
@@ -128,7 +129,7 @@ const JobCard = ({ job, index }) => {
 
             {job.link && (
                 <a 
-                    href={job.link}
+                    href={normalizeUrl(job.link)}
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 text-sm font-semibold text-emerald-600 hover:text-emerald-700 transition-colors"

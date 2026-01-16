@@ -147,78 +147,114 @@ const LandingPage = () => {
               </Link>
             </div>
 
-            {/* Hero Image / Mockup - CSS Based */}
-            <div className="mt-12 sm:mt-20 relative mx-auto max-w-5xl px-0 sm:px-4">
-                <div className="absolute -inset-1 sm:-inset-2 bg-gradient-to-r from-blue-600 to-cyan-400 rounded-xl sm:rounded-2xl blur opacity-20"></div>
-                <div className="relative bg-white border border-slate-200 rounded-xl sm:rounded-2xl shadow-xl overflow-hidden min-h-[350px] sm:min-h-[500px] flex flex-col">
-                    {/* Mock Browser Header */}
-                    <div className="bg-slate-100 border-b border-slate-200 px-3 py-2 sm:px-4 sm:py-3 flex items-center gap-2">
-                        <div className="flex gap-1.5">
-                            <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-red-400"></div>
-                            <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-yellow-400"></div>
-                            <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-green-400"></div>
+            {/* Hero Image / Mockup - Compound (Desktop + Mobile) */}
+            <div className="mt-16 sm:mt-24 relative mx-auto max-w-6xl px-0 sm:px-4 flex flex-col items-center">
+                
+                {/* 1. Browser Mockup (Desktop View) - Shifted slightly left/top */}
+                <div className="relative w-full max-w-5xl z-0 transform transition-transform hover:scale-[1.01] duration-500">
+                    <div className="absolute -inset-1 sm:-inset-2 bg-gradient-to-r from-blue-600 to-cyan-400 rounded-xl sm:rounded-2xl blur opacity-20"></div>
+                    <div className="relative bg-white border border-slate-200 rounded-xl sm:rounded-2xl shadow-2xl overflow-hidden min-h-[350px] sm:min-h-[500px] flex flex-col">
+                        {/* Browser Header */}
+                        <div className="bg-slate-100 border-b border-slate-200 px-3 py-2 sm:px-4 sm:py-3 flex items-center gap-2">
+                            <div className="flex gap-1.5">
+                                <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-red-400"></div>
+                                <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-yellow-400"></div>
+                                <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-green-400"></div>
+                            </div>
+                            <div className="ml-2 sm:ml-4 bg-white rounded-md px-2 py-1 text-[10px] sm:text-xs text-slate-400 flex-1 text-center font-mono truncate shadow-sm">
+                                cv-profesional.web.app/u/juan-diego
+                            </div>
                         </div>
-                        <div className="ml-2 sm:ml-4 bg-white rounded-md px-2 py-1 text-[10px] sm:text-xs text-slate-400 flex-1 text-center font-mono truncate">
-                            cv-profesional.web.app/u/juan-diego
+                        {/* Browser Content */}
+                        <div className="flex-1 bg-slate-50 p-3 sm:p-10 overflow-hidden relative">
+                             {/* Abstract CV Structure */}
+                             <div className="max-w-3xl mx-auto bg-white shadow-sm border border-slate-200 rounded-lg p-4 sm:p-8 transform scale-100 sm:scale-105 origin-top opacity-80 blur-[0.5px] lg:opacity-100 lg:blur-0 transition-all">
+                                 <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mb-6 sm:mb-8">
+                                     <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-slate-200 shrink-0 mx-auto sm:mx-0"></div>
+                                     <div className="flex-1 space-y-2 sm:space-y-3 text-center sm:text-left">
+                                         <div className="h-5 sm:h-6 bg-slate-800 w-3/4 mx-auto sm:mx-0 rounded"></div>
+                                         <div className="h-3 sm:h-4 bg-blue-500 w-1/2 mx-auto sm:mx-0 rounded"></div>
+                                         <div className="h-12 sm:h-16 bg-slate-100 w-full rounded mt-2 hidden sm:block"></div>
+                                     </div>
+                                 </div>
+                                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8">
+                                     <div className="col-span-1 space-y-3 sm:space-y-4 hidden sm:block">
+                                         <div className="h-4 bg-slate-200 w-1/3 rounded"></div>
+                                         <div className="h-2 bg-slate-100 w-full rounded"></div>
+                                         <div className="h-2 bg-slate-100 w-2/3 rounded"></div>
+                                         <div className="h-2 bg-slate-100 w-4/5 rounded"></div>
+                                     </div>
+                                     <div className="col-span-1 sm:col-span-2 space-y-4 sm:space-y-6">
+                                         <div className="space-y-3">
+                                             <div className="h-4 sm:h-5 bg-slate-200 w-1/3 sm:w-1/4 rounded mx-auto sm:mx-0"></div>
+                                             <div className="p-3 sm:p-4 bg-slate-50 rounded-lg border border-slate-100">
+                                                 <div className="h-3 sm:h-4 bg-slate-300 w-1/2 rounded mb-2"></div>
+                                                 <div className="h-2 sm:h-3 bg-slate-200 w-1/4 rounded mb-2"></div>
+                                                 <div className="h-2 bg-slate-100 w-full rounded"></div>
+                                             </div>
+                                         </div>
+                                     </div>
+                                 </div>
+                             </div>
                         </div>
                     </div>
-                    {/* Mock Content */}
-                    <div className="flex-1 bg-slate-50 p-3 sm:p-10 overflow-hidden relative">
-                         {/* Abstract CV Layout */}
-                         <div className="max-w-3xl mx-auto bg-white shadow-sm border border-slate-200 rounded-lg p-4 sm:p-8 transform scale-100 sm:scale-105 origin-top">
-                             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mb-6 sm:mb-8">
-                                 <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-slate-200 shrink-0 animate-pulse mx-auto sm:mx-0"></div>
-                                 <div className="flex-1 space-y-2 sm:space-y-3 text-center sm:text-left">
-                                     <div className="h-5 sm:h-6 bg-slate-800 w-3/4 mx-auto sm:mx-0 rounded animate-pulse"></div>
-                                     <div className="h-3 sm:h-4 bg-blue-500 w-1/2 mx-auto sm:mx-0 rounded animate-pulse"></div>
-                                     <div className="h-12 sm:h-16 bg-slate-100 w-full rounded mt-2 hidden sm:block"></div>
-                                 </div>
-                             </div>
-                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8">
-                                 <div className="col-span-1 space-y-3 sm:space-y-4 hidden sm:block">
-                                     <div className="h-4 bg-slate-200 w-1/3 rounded"></div>
-                                     <div className="h-2 bg-slate-100 w-full rounded"></div>
-                                     <div className="h-2 bg-slate-100 w-2/3 rounded"></div>
-                                     <div className="h-2 bg-slate-100 w-4/5 rounded"></div>
-                                     
-                                     <div className="h-4 bg-slate-200 w-1/2 rounded mt-8"></div>
-                                     <div className="flex flex-wrap gap-2">
-                                         <div className="h-6 w-16 bg-blue-50 rounded-full"></div>
-                                         <div className="h-6 w-12 bg-blue-50 rounded-full"></div>
-                                         <div className="h-6 w-20 bg-blue-50 rounded-full"></div>
-                                     </div>
-                                 </div>
-                                 <div className="col-span-1 sm:col-span-2 space-y-4 sm:space-y-6">
-                                     <div className="space-y-3">
-                                         <div className="h-4 sm:h-5 bg-slate-200 w-1/3 sm:w-1/4 rounded mx-auto sm:mx-0"></div>
-                                         <div className="p-3 sm:p-4 bg-slate-50 rounded-lg border border-slate-100">
-                                             <div className="h-3 sm:h-4 bg-slate-300 w-1/2 rounded mb-2"></div>
-                                             <div className="h-2 sm:h-3 bg-slate-200 w-1/4 rounded mb-2"></div>
-                                             <div className="h-2 bg-slate-100 w-full rounded"></div>
-                                             <div className="h-2 bg-slate-100 w-full rounded mt-1"></div>
-                                         </div>
-                                         <div className="p-3 sm:p-4 bg-slate-50 rounded-lg border border-slate-100">
-                                             <div className="h-3 sm:h-4 bg-slate-300 w-1/2 rounded mb-2"></div>
-                                             <div className="h-2 sm:h-3 bg-slate-200 w-1/4 rounded mb-2"></div>
-                                             <div className="h-2 bg-slate-100 w-full rounded"></div>
-                                         </div>
-                                     </div>
-                                 </div>
-                             </div>
+                    
+                    {/* Badge for Desktop Browser - Positioned relative to Browser */}
+                    <div className="flex absolute -bottom-4 left-4 sm:bottom-8 sm:left-8 bg-white p-3 rounded-xl shadow-xl border border-slate-200 items-center justify-center gap-3 animate-bounce-slow z-20 scale-90 sm:scale-100">
+                         <div className="bg-green-100 p-1.5 rounded-full text-green-600 shrink-0">
+                             <CheckCircle2 className="w-5 h-5" />
                          </div>
-                         
-                         {/* Floating Badge */}
-                         <div className="absolute bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:bottom-6 sm:w-auto bg-white dark:bg-slate-800 p-3 sm:p-4 rounded-xl shadow-xl border border-slate-200 flex items-center justify-center sm:justify-start gap-3 animate-bounce-slow z-20">
-                             <div className="bg-green-100 p-1.5 sm:p-2 rounded-full text-green-600 shrink-0">
-                                 <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" />
-                             </div>
-                             <div className="text-left">
-                                 <p className="text-sm font-bold text-slate-800 leading-tight">Perfil en línea</p>
-                                 <p className="text-[10px] sm:text-xs text-slate-500">Visible para reclutadores</p>
-                             </div>
+                         <div className="text-left">
+                             <p className="text-sm font-bold text-slate-800 leading-tight">Perfil en línea</p>
+                             <p className="text-xs text-slate-500">Optimizado para todos</p>
                          </div>
+                     </div>
+                </div>
+
+                {/* 2. Phone Mockup (Mobile View) - Positioned Over/Next */}
+                <div className="relative mt-8 lg:mt-0 lg:absolute lg:-right-8 lg:-bottom-12 z-20 w-64 sm:w-72 bg-slate-900 rounded-[2.5rem] p-3 shadow-2xl border-4 border-slate-800 rotate-0 lg:-rotate-6 hover:rotate-0 transition-transform duration-500">
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-6 bg-slate-900 rounded-b-xl z-20"></div>
+                    <div className="bg-white w-full h-[450px] sm:h-[500px] rounded-[2rem] overflow-hidden relative border border-slate-300">
+                        {/* Status Bar */}
+                        <div className="h-8 bg-slate-50 w-full flex justify-between items-center px-6 pt-1">
+                             <div className="text-[10px] font-bold text-slate-800">9:41</div>
+                             <div className="flex gap-1">
+                                 <div className="w-3 h-3 bg-slate-300 rounded-full"></div>
+                                 <div className="w-3 h-3 bg-slate-300 rounded-full"></div>
+                             </div>
+                        </div>
+                        {/* App Content */}
+                        <div className="p-4 bg-slate-50 h-full relative">
+                            {/* Mobile CV Layout */}
+                            <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100 mb-4 text-center">
+                                <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-blue-500 to-cyan-400 mx-auto mb-3 shadow-md"></div>
+                                <div className="h-4 bg-slate-800 w-3/4 mx-auto rounded mb-2"></div>
+                                <div className="h-3 bg-blue-100 text-blue-600 w-1/2 mx-auto rounded text-[10px] flex items-center justify-center font-bold">Desarrollador Web</div>
+                            </div>
+                            <div className="space-y-3">
+                                <div className="h-20 bg-white rounded-xl shadow-sm border border-slate-100 p-3">
+                                    <div className="h-3 bg-slate-200 w-1/3 rounded mb-2"></div>
+                                    <div className="h-2 bg-slate-100 w-full rounded mb-1"></div>
+                                </div>
+                                <div className="h-20 bg-white rounded-xl shadow-sm border border-slate-100 p-3">
+                                    <div className="h-3 bg-slate-200 w-1/3 rounded mb-2"></div>
+                                    <div className="h-2 bg-slate-100 w-full rounded mb-1"></div>
+                                </div>
+                            </div>
+                            
+                            {/* Floating "Visible to Recruiters" Badge - INSIDE Phone as requested */}
+                            <div className="absolute bottom-6 left-4 right-4 bg-slate-800/95 backdrop-blur-sm p-3 rounded-xl shadow-lg flex items-center justify-center gap-3 z-30 animate-fade-in-up border border-slate-700">
+                                <div className="bg-green-500/20 p-1.5 rounded-full text-green-400 shrink-0">
+                                    <CheckCircle2 className="w-4 h-4" />
+                                </div>
+                                <div className="text-left">
+                                    <p className="text-xs font-medium text-slate-200">Visible para reclutadores</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
+
             </div>
 
         </div>
@@ -311,7 +347,7 @@ const LandingPage = () => {
       <footer className="bg-slate-50 py-8 sm:py-12 border-t border-slate-200">
           <div className="max-w-7xl mx-auto px-4 text-center text-slate-500 text-sm">
               <p className="mb-2">&copy; {new Date().getFullYear()} CV Profesional. Todos los derechos reservados.</p>
-              <p className="text-xs mb-4">Desarrollado con ❤️ por <a href="https://cv-profesional.web.app/p/juandiegoarchila" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Juan Diego Archila</a></p>
+              <p className="text-xs mb-4">Desarrollado con ❤️ por <a href="https://cv-profesional.web.app/p/juandiegoarchila" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Juan Diego Archila León</a></p>
               
               <button 
                   onClick={() => setIsFeedbackOpen(true)}

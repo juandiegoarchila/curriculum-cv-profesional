@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Download, Linkedin, MessageCircle, Github, Mail, Globe, Twitter, Send, Phone } from 'lucide-react';
 import { useData } from '../context/DataContext';
+import { normalizeUrl } from '../utils/urlHelpers';
 
 
 const Hero = ({ customData, customFullData, customSectionVisibility }) => {
@@ -88,6 +89,7 @@ const Hero = ({ customData, customFullData, customSectionVisibility }) => {
       }
   };
   
+  // Normalizar URLs para evitar rutas relativas (ahora usando helper compartido)
   const social = getSocialConfig(profile.socialType || 'linkedin');
   const messaging = getMessagingConfig(profile.messagingType || 'whatsapp');
 
@@ -161,7 +163,7 @@ const Hero = ({ customData, customFullData, customSectionVisibility }) => {
 
                         <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto order-2">
                             <a 
-                            href={profile.linkedin}
+                            href={normalizeUrl(profile.linkedin)}
                             target="_blank"
                             rel="noopener noreferrer"
                             className={`flex items-center justify-center gap-2 px-6 py-3 border border-slate-200 rounded-lg font-bold text-slate-700 transition-colors w-full sm:w-auto ${social.border} ${social.text}`}
@@ -171,7 +173,7 @@ const Hero = ({ customData, customFullData, customSectionVisibility }) => {
                             </a>
 
                             <a 
-                            href={profile.whatsapp || "https://wa.me/573142749518"}
+                            href={normalizeUrl(profile.whatsapp || "https://wa.me/573142749518")}
                             target="_blank" 
                             rel="noopener noreferrer"
                             className={`flex items-center justify-center gap-2 px-6 py-3 border border-slate-200 rounded-lg font-bold text-slate-700 transition-colors w-full sm:w-auto ${messaging.border} ${messaging.text}`}

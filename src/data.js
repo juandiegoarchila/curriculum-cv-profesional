@@ -39,7 +39,7 @@ export const experience = [
     period: "Febrero 2024 - Actualidad",
     location: "Bogotá, Colombia",
     description: "Desarrollo de soluciones de software a medida para control operativo de PYMES.",
-    link: "https://altenot.com",
+    link: "https://altenot.web.app/",
     linkLabel: "Visitar sitio web",
     summary: [
       "Diseño y desarrollo de ecosistemas digitales (ERP/POS) para control unificado de caja, inventario y personal.",
@@ -92,7 +92,7 @@ export const projects = [
   {
     title: "Cocina Casera",
     tech: ["React", "Node.js", "Firebase", "WhatsApp API"],
-    link: "#",
+    link: "https://cocina-casera.web.app/",
     linkLabel: "Ver Proyecto",
     role: "Full Stack Developer",
     featured: true,
@@ -107,7 +107,7 @@ export const projects = [
   {
     title: "ALTENOT Tech Lab",
     tech: ["React", "Node.js", "Firebase", "Tailwind CSS"],
-    link: "https://altenot.com",
+    link: "https://altenot.web.app/login",
     linkLabel: "Ver Proyecto",
     role: "Lead Developer",
     featured: true,
@@ -121,7 +121,7 @@ export const projects = [
   {
     title: "Plataforma SaaS CV Generator",
     tech: ["React", "Node.js", "Firebase", "Tailwind CSS"],
-    link: "#",
+    link: "https://curriculum-cv-profesional.web.app/",
     linkLabel: "Ver Proyecto",
     role: "Creator & Lead Dev",
     featured: true,

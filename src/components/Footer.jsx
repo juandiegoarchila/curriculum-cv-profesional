@@ -1,8 +1,10 @@
-import React from 'react';
-import { Mail, Phone, MapPin, Linkedin, Globe, MessageCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { Mail, Phone, MapPin, MessageCircle } from 'lucide-react';
 import { useData } from '../context/DataContext';
+import FeedbackModal from './FeedbackModal';
 
 const Footer = ({ customData, customSectionVisibility }) => {
+    const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
     const { profile: contextProfile, footer: contextFooter, sectionVisibility } = useData();
     
     // Logic to handle both legacy and new customData structure
@@ -97,20 +99,59 @@ const Footer = ({ customData, customSectionVisibility }) => {
                     </div>
                 </div>
 
-                <div className="pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4">
-                    <p className="text-slate-500 text-sm">
-                        {footer?.copyrightText || `© ${new Date().getFullYear()} ${activeProfile.name}. Todos los derechos reservados.`}
-                    </p>
-                    <div className="flex gap-6">
-                        <a href={activeProfile.linkedin} target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-white transition-colors">
-                            <Linkedin size={20} />
+                <div className="pt-8 border-t border-slate-800">
+                    {/* Primera línea: Copyright */}
+                    <div className="text-center mb-3">
+                        <p className="text-slate-500 text-sm">
+                            © {new Date().getFullYear()} CV Profesional. Todos los derechos reservados.
+                        </p>
+                    </div>
+
+                    {/* Segunda línea: Desarrollado con amor */}
+                    <div className="text-center mb-3">
+                        <p className="text-slate-600 text-xs">
+                            Desarrollado con ❤️ por{' '}
+                            <a 
+                                href="https://curriculum-cv-profesional.web.app/" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-primary hover:text-primary/80 transition-colors font-medium"
+                            >
+                                Juan Diego Archila León
+                            </a>
+                        </p>
+                    </div>
+
+                    {/* Tercera línea: Crea tu CV gratis */}
+                    <div className="text-center mb-4">
+                        <a 
+                            href="https://curriculum-cv-profesional.web.app/" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-primary hover:text-primary/80 transition-colors text-sm font-semibold"
+                        >
+                            Crea tu CV gratis aquí
                         </a>
-                        <a href={activeProfile.website} target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-white transition-colors">
-                            <Globe size={20} />
-                        </a>
+                    </div>
+
+                    {/* Cuarta línea: Reportar error */}
+                    <div className="text-center">
+                        <button
+                            onClick={() => setIsFeedbackOpen(true)}
+                            className="text-slate-600 hover:text-slate-400 transition-colors text-xs underline"
+                        >
+                            Reportar error o enviar sugerencia
+                        </button>
                     </div>
                 </div>
             </div>
+            
+            {/* Feedback Modal */}
+            <FeedbackModal 
+                isOpen={isFeedbackOpen} 
+                onClose={() => setIsFeedbackOpen(false)} 
+                source="PublicProfile"
+            />
         </footer>
     );
 };

@@ -658,6 +658,10 @@ const Admin = () => {
     
     // Debounce Ref
     const historyTimer = React.useRef(null);
+    
+    // Autosave Control - evita loops infinitos
+    const lastSavedDataRef = useRef(null);
+    const isSavingRef = useRef(false);
 
     // Helper to commit to history without updating UI state (since UI is already updated)
     const commitToHistory = (data) => {
@@ -828,6 +832,9 @@ const Admin = () => {
                 setRawFormData(initialData);
                 setHistory([initialData]);
                 setHistoryIndex(0);
+                
+                // Inicializar referencia de último guardado para evitar autosave inicial
+                lastSavedDataRef.current = JSON.stringify(initialData);
             } catch (error) {
                 console.error("CRITICAL ERROR INITIALIZING DATA:", error);
                 // Last resort fallback
@@ -954,8 +961,40 @@ const Admin = () => {
         }
     }, [formData?.header?.title, formData?.profile?.name]);
 
-    const handleSave = async () => {
-        setSaveStatus('Guardando...');
+    // AUTOSAVE AUTOMÁTICO - Guarda cambios a Firebase automáticamente
+    const autosaveTimerRef = useRef(null);
+    useEffect(() => {
+        // Solo autosave si formData existe y no estamos cargando datos iniciales
+        if (!formData || loading || isSavingRef.current) return;
+        
+        // Comparar con último guardado para evitar loops
+        const currentDataStr = JSON.stringify(formData);
+        if (currentDataStr === lastSavedDataRef.current) return;
+        
+        // Limpiar timer anterior
+        if (autosaveTimerRef.current) {
+            clearTimeout(autosaveTimerRef.current);
+        }
+
+        // Guardar después de 2 segundos sin cambios
+        autosaveTimerRef.current = setTimeout(() => {
+            handleSave(true); // true = autosave silencioso
+        }, 2000);
+
+        // Cleanup
+        return () => {
+            if (autosaveTimerRef.current) {
+                clearTimeout(autosaveTimerRef.current);
+            }
+        };
+    }, [formData]); // Se ejecuta cada vez que formData cambia
+
+    const handleSave = async (isAutosave = false) => {
+        if (isSavingRef.current) return; // Evitar guardados simultáneos
+        
+        isSavingRef.current = true;
+        if (!isAutosave) setSaveStatus('Guardando...');
+        
         try {
             const cleanData = {
                 ...formData,
@@ -984,12 +1023,30 @@ const Admin = () => {
             }
 
             await saveData(cleanData);
-            setSaveStatus('¡Guardado!');
-            setTimeout(() => setSaveStatus(''), 3000);
+            
+            // Actualizar último guardado para evitar re-saves innecesarios
+            lastSavedDataRef.current = JSON.stringify(formData);
+            
+            if (isAutosave) {
+                // Autosave silencioso - solo console log
+                console.log('✅ Autosave exitoso');
+            } else {
+                // Save manual - mostrar confirmación al usuario
+                setSaveStatus('¡Guardado!');
+                setTimeout(() => setSaveStatus(''), 3000);
+            }
         } catch (error) {
-            setSaveStatus('Error: ' + error.message);
-            // Mostrar error más visible si es de username
-            if (error.message.includes('usuario')) alert(error.message);
+            if (isAutosave) {
+                // Autosave falló - log silencioso sin molestar al usuario
+                console.error('⚠️ Autosave falló:', error);
+            } else {
+                // Save manual falló - mostrar error al usuario
+                setSaveStatus('Error: ' + error.message);
+                // Mostrar error más visible si es de username
+                if (error.message.includes('usuario')) alert(error.message);
+            }
+        } finally {
+            isSavingRef.current = false;
         }
     };
 
@@ -1071,7 +1128,7 @@ const Admin = () => {
         setShowDeletePhotoModal(true);
     };
 
-    const confirmImageDelete = () => {
+    const confirmImageDelete = async () => {
         setFormData(prev => ({
             ...prev,
             profile: {
@@ -1080,9 +1137,36 @@ const Admin = () => {
                 photoBase64: ''
             }
         }));
-        setSaveStatus('Foto eliminada (Recuerda Guardar)');
-        setTimeout(() => setSaveStatus(''), 3000);
         setShowDeletePhotoModal(false);
+        
+        // Guardar inmediatamente para que se sincronice
+        setSaveStatus('Eliminando foto...');
+        
+        // Esperar un frame para que el estado se actualice
+        setTimeout(async () => {
+            try {
+                const cleanData = {
+                    ...formData,
+                    profile: {
+                        ...formData.profile,
+                        photoURL: '',
+                        photoBase64: ''
+                    },
+                    experience: stripIds(formData.experience),
+                    projects: stripIds(formData.projects),
+                    education: stripIds(formData.education),
+                    continuousEducation: stripIds(formData.continuousEducation)
+                };
+                
+                await saveData(cleanData);
+                setSaveStatus('¡Foto eliminada!');
+                setTimeout(() => setSaveStatus(''), 2000);
+            } catch (error) {
+                console.error('Error eliminando foto:', error);
+                setSaveStatus('Error al eliminar');
+                setTimeout(() => setSaveStatus(''), 3000);
+            }
+        }, 100);
     };
 
     // Expone la función global para que Hero.jsx pueda llamarla
@@ -1481,6 +1565,16 @@ const Admin = () => {
                         >
                            <MessageCircle size={18} /> Enviar Feedback
                         </button>
+
+                        {/* Messages - Movil - ADMIN ONLY */}
+                        {user?.email === 'juandiegoarchilaeon@gmail.com' && (
+                            <button 
+                                onClick={() => { navigate('/admin/messages'); setIsMobileMenuOpen(false); }}
+                                className="w-full flex items-center justify-start gap-3 text-slate-300 hover:text-white hover:bg-slate-800 p-2 rounded-lg transition-colors font-medium text-sm border border-slate-700"
+                            >
+                               <Mail size={18} /> Ver Mensajes
+                            </button>
+                        )}
 
                         {/* 1. Web - Movil Extremo solamente */}
                          <button 
@@ -1978,6 +2072,37 @@ const Admin = () => {
                                 <textarea value={formData.profile.summary} onChange={(e) => handleChange('profile', 'summary', e.target.value)} onFocus={() => scrollToPreview('preview-hero-summary')} rows={4} className="w-full p-2.5 bg-white border border-slate-300 rounded focus:ring-2 focus:ring-blue-500 outline-none" />
                             </div>
 
+                            {/* Helper para normalizar URLs sociales */}
+                            {(() => {
+                                const normalizeSocialUrl = (url, type) => {
+                                    if (!url || !url.trim()) return '';
+                                    const trimmed = url.trim();
+                                    
+                                    // Si ya tiene protocolo, retornar
+                                    if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('tel:')) {
+                                        return trimmed;
+                                    }
+                                    
+                                    // Agregar https:// según el tipo
+                                    switch(type) {
+                                        case 'linkedin':
+                                            return trimmed.includes('linkedin.com') ? `https://${trimmed}` : `https://linkedin.com/in/${trimmed}`;
+                                        case 'github':
+                                            return trimmed.includes('github.com') ? `https://${trimmed}` : `https://github.com/${trimmed}`;
+                                        case 'twitter':
+                                            return trimmed.includes('twitter.com') || trimmed.includes('x.com') ? `https://${trimmed}` : `https://x.com/${trimmed}`;
+                                        case 'email':
+                                            return trimmed.includes('@') ? `mailto:${trimmed}` : trimmed;
+                                        default:
+                                            return `https://${trimmed}`;
+                                    }
+                                };
+                                
+                                // Exponer la función globalmente para uso en los inputs
+                                window.normalizeSocialUrl = normalizeSocialUrl;
+                                return null;
+                            })()}
+
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 border-t pt-4 mt-2">
                                 <div className="col-span-1">
                                     <label className="text-xs font-bold text-slate-500 uppercase mb-1 block">Estado (Hero) {previewType === 'pdf' && <span onClick={handleSwitchToWeb} className="ml-2 text-[10px] bg-sky-100 text-sky-700 hover:bg-sky-200 px-2 py-0.5 rounded-full font-bold cursor-pointer transition-colors border border-sky-200 inline-flex items-center gap-1"><ExternalLink size={10}/> Solo Web</span>}</label>
@@ -2033,8 +2158,9 @@ const Admin = () => {
                                         };
 
                                         const updateSocial = (newType, newVal) => {
+                                            const normalized = window.normalizeSocialUrl ? window.normalizeSocialUrl(newVal, newType) : newVal;
                                             handleChange('profile', 'socialType', newType);
-                                            handleChange('profile', 'linkedin', newVal);
+                                            handleChange('profile', 'linkedin', normalized);
                                         }
 
                                         return (
@@ -2123,9 +2249,15 @@ const Admin = () => {
                                                 ) : (
                                                     <input 
                                                         value={formData.profile.linkedin || ''} 
-                                                        onChange={(e) => handleChange('profile', 'linkedin', e.target.value)} 
+                                                        onChange={(e) => handleChange('profile', 'linkedin', e.target.value)}
+                                                        onBlur={(e) => {
+                                                            const normalized = window.normalizeSocialUrl ? window.normalizeSocialUrl(e.target.value, type) : e.target.value;
+                                                            if (normalized !== e.target.value) {
+                                                                handleChange('profile', 'linkedin', normalized);
+                                                            }
+                                                        }}
                                                         onFocus={() => { scrollToPreview('preview-profile-button-primary'); handleSwitchToWeb(); }}
-                                                        placeholder="URL completa..."
+                                                        placeholder="URL completa (ej: linkedin.com/in/usuario)..."
                                                         className={`flex-1 w-full p-2.5 outline-none text-sm ${previewType === 'pdf' ? 'bg-slate-50 text-slate-500 placeholder:text-slate-400' : 'bg-transparent text-slate-700 placeholder:text-slate-400'}`} 
                                                     />
                                                 )}
@@ -2162,8 +2294,9 @@ const Admin = () => {
                                         };
 
                                         const updateSocial = (newType, newVal) => {
+                                            const normalized = window.normalizeSocialUrl ? window.normalizeSocialUrl(newVal, newType) : newVal;
                                             handleChange('profile', 'messagingType', newType);
-                                            handleChange('profile', 'whatsapp', newVal);
+                                            handleChange('profile', 'whatsapp', normalized);
                                         }
 
                                         return (
@@ -2255,9 +2388,15 @@ const Admin = () => {
                                                     /* GENERIC INPUT FOR SOCIALS */
                                                     <input 
                                                         value={rawUrl}
-                                                        onChange={(e) => updateSocial(type, e.target.value)}
+                                                        onChange={(e) => handleChange('profile', 'whatsapp', e.target.value)}
+                                                        onBlur={(e) => {
+                                                            const normalized = window.normalizeSocialUrl ? window.normalizeSocialUrl(e.target.value, type) : e.target.value;
+                                                            if (normalized !== e.target.value) {
+                                                                handleChange('profile', 'whatsapp', normalized);
+                                                            }
+                                                        }}
                                                         onFocus={() => { scrollToPreview('preview-profile-button-secondary'); handleSwitchToWeb(); }}
-                                                        placeholder="URL completa..."
+                                                        placeholder="URL completa (ej: github.com/usuario)..."
                                                         className={`flex-1 w-full p-2.5 outline-none text-sm ${previewType === 'pdf' ? 'bg-slate-50 text-slate-500 placeholder:text-slate-400' : 'bg-transparent text-slate-700 placeholder:text-slate-400'}`} 
                                                     />
                                                 )}

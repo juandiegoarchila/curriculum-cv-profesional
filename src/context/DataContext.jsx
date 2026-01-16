@@ -18,7 +18,7 @@ const DataContext = createContext();
 
 export const useData = () => useContext(DataContext);
 
-export const DataProvider = ({ children, userId }) => {
+export const DataProvider = ({ children, userId, demoMode = false }) => {
     const { user, loading: authLoading } = useAuth();
     // Inicializar estado con los datos del archivo local (data.js)
     const [profile, setProfile] = useState(defaultProfile);
@@ -55,6 +55,14 @@ export const DataProvider = ({ children, userId }) => {
     const [isSaved, setIsSaved] = useState(false);
 
     useEffect(() => {
+        // Si está en modo demo, no cargar datos de Firebase
+        if (demoMode) {
+            console.log("Modo demo activado: usando datos estáticos de data.js");
+            setLoading(false);
+            setIsSaved(true); // Marcar como guardado para que no aparezca el onboarding
+            return;
+        }
+        
         if (authLoading) return;
         
         let path = 'content/cv_data';
@@ -79,10 +87,8 @@ export const DataProvider = ({ children, userId }) => {
                 // MIGRACIÓN AUTOMÁTICA DESHABILITADA PARA EVITAR SOBRESCRIBIR DATOS DE USUARIOS REALES
                 
                 if (data.profile) {
-                    setProfile(prev => ({
-                        ...prev,
-                        ...data.profile
-                    }));
+                    // Reemplazar completamente (no merge) para asegurar que sobrescriba todo
+                    setProfile(data.profile);
                 }
                 
                 if (data.experience) setExperience(data.experience);
@@ -128,7 +134,7 @@ export const DataProvider = ({ children, userId }) => {
         return () => unsubscribe();
     }, [user, authLoading, userId]);
 
-    const saveData = async (newData) => {
+    const saveData = async (newData, options = { merge: true }) => {
         if (!db || Object.keys(db).length === 0) {
             throw new Error("No hay conexión a base de datos.");
         }
@@ -141,7 +147,7 @@ export const DataProvider = ({ children, userId }) => {
             // Nota: No necesitamos actualizar el estado local aquí manualmente (setProfile, etc)
             // porque la suscripción 'onSnapshot' de arriba lo hará automáticamente 
             // en cuanto Firebase confirme el cambio. Esto nos asegura que "lo que veo es lo que hay en DB".
-            await setDoc(doc(db, path), newData, { merge: true });
+            await setDoc(doc(db, path), newData, options);
             return true;
         } catch (e) {
             console.error("Error guardando documento: ", e);
